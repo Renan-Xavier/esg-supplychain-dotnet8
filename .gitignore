@@ -1,0 +1,26 @@
+## Build & IDE artifacts
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+.vs/
+.vscode/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+TestResults/
+coverage/
+
+## Local databases & secrets
+*.db
+*.db-shm
+*.db-wal
+*.mdf
+*.ldf
+appsettings.Local.json
+.env
+
+## OS files
+Thumbs.db
+.DS_Store
