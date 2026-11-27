@@ -1,4 +1,4 @@
-﻿using EsgSupplyChain.Api.Services;
+using EsgSupplyChain.Api.Services;
 using EsgSupplyChain.Api.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -44,6 +44,7 @@ public class FornecedoresController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = "Auditor,Analista")]
     public async Task<ActionResult<FornecedorRespostaViewModel>> Cadastrar([FromBody] FornecedorRequisicaoViewModel dados)
     {
         var criado = await _fornecedorService.CadastrarAsync(dados);
@@ -51,6 +52,7 @@ public class FornecedoresController : ControllerBase
     }
 
     [HttpPut("{id:long}")]
+    [Authorize(Roles = "Auditor,Analista")]
     public async Task<ActionResult<FornecedorRespostaViewModel>> Atualizar(long id, [FromBody] FornecedorRequisicaoViewModel dados)
     {
         var atualizado = await _fornecedorService.AtualizarAsync(id, dados);
@@ -65,4 +67,3 @@ public class FornecedoresController : ControllerBase
         return Ok(diagnostico);
     }
 }
-

@@ -1,4 +1,4 @@
-﻿using EsgSupplyChain.Api.Services;
+using EsgSupplyChain.Api.Services;
 using EsgSupplyChain.Api.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -37,6 +37,7 @@ public class EmissoesController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = "Auditor,Analista")]
     public async Task<ActionResult<EmissaoRespostaViewModel>> Registrar([FromBody] EmissaoRequisicaoViewModel dados)
     {
         var criada = await _emissaoService.RegistrarAsync(dados);
@@ -44,6 +45,7 @@ public class EmissoesController : ControllerBase
     }
 
     [HttpPatch("{id:long}/auditoria")]
+    [Authorize(Roles = "Auditor")]
     public async Task<ActionResult<EmissaoRespostaViewModel>> Auditar(long id, [FromBody] EmissaoAuditoriaViewModel dados)
     {
         var atualizada = await _emissaoService.AuditarAsync(id, dados);
@@ -51,10 +53,10 @@ public class EmissoesController : ControllerBase
     }
 
     [HttpDelete("{id:long}")]
+    [Authorize(Roles = "Auditor")]
     public async Task<IActionResult> Invalidar(long id)
     {
         await _emissaoService.InvalidarAsync(id);
         return NoContent();
     }
 }
-

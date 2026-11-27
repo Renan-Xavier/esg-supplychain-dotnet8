@@ -1,0 +1,211 @@
+{
+  "info": {
+    "_postman_id": "9f834e70-6a91-4d75-b55c-88c1e5b24108",
+    "name": "ESG Supply Chain API - ASP.NET Core 8 (Fase 4 FIAP)",
+    "description": "Coleção completa de endpoints RESTful da plataforma de Transparência e Conformidade ESG na Cadeia de Suprimentos (.NET 8).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5080"
+    },
+    {
+      "key": "jwtToken",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Autenticação JWT",
+      "item": [
+        {
+          "name": "Emitir Token (Perfil Auditor)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const json = pm.response.json();",
+                  "    pm.collectionVariables.set('jwtToken', json.accessToken);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"usuario\": \"auditor\",\n  \"senha\": \"esg-auditor-2026\"\n}"
+            },
+            "url": "{{baseUrl}}/api/auth/token"
+          }
+        },
+        {
+          "name": "Consultar Perfis Operacionais",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/auth/perfis"
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Fornecedores da Cadeia",
+      "item": [
+        {
+          "name": "Listar Fornecedores (Paginado)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/fornecedores?pagina=1&tamanhoPagina=10"
+          }
+        },
+        {
+          "name": "Cadastrar Fornecedor",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{jwtToken}}", "type": "string" }]
+            },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nomeEmpresa\": \"EcoLogística Integrada S.A.\",\n  \"cnpj\": \"14253647000195\",\n  \"pais\": \"Brasil\",\n  \"nivelCadeia\": \"TIER_1\",\n  \"metaAnualCarbono\": 420.00,\n  \"certificadoDireitosHumanos\": true\n}"
+            },
+            "url": "{{baseUrl}}/api/fornecedores"
+          }
+        },
+        {
+          "name": "Consultar Diagnóstico de Conformidade ESG",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/fornecedores/1/conformidade"
+          }
+        },
+        {
+          "name": "Atualizar Fornecedor",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{jwtToken}}", "type": "string" }]
+            },
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nomeEmpresa\": \"TransLog Sul Transportes S.A.\",\n  \"cnpj\": \"12345678000190\",\n  \"pais\": \"Brasil\",\n  \"nivelCadeia\": \"TIER_1\",\n  \"metaAnualCarbono\": 550.00,\n  \"certificadoDireitosHumanos\": true\n}"
+            },
+            "url": "{{baseUrl}}/api/fornecedores/1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Emissões de Escopo 3",
+      "item": [
+        {
+          "name": "Listar Emissões Ativas (Paginado)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/emissoes?pagina=1&tamanhoPagina=10"
+          }
+        },
+        {
+          "name": "Registrar Emissão de Escopo 3",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{jwtToken}}", "type": "string" }]
+            },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fornecedorId\": 1,\n  \"categoriaEscopo3\": \"Transporte e distribuição downstream\",\n  \"quantidadeCarbono\": 195.40,\n  \"tipoDado\": \"PRIMARIO_MEDIDO\",\n  \"dataRelatorio\": \"2026-11-24\"\n}"
+            },
+            "url": "{{baseUrl}}/api/emissoes"
+          }
+        },
+        {
+          "name": "Aprovar Auditoria de Emissão (Restrito Auditor)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{jwtToken}}", "type": "string" }]
+            },
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"statusAuditoria\": \"AUDITADO\",\n  \"observacaoAuditoria\": \"Laudo verificado conforme protocolo GHG Escopo 3.\"\n}"
+            },
+            "url": "{{baseUrl}}/api/emissoes/2/auditoria"
+          }
+        },
+        {
+          "name": "Invalidar Relatório de Emissão",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{jwtToken}}", "type": "string" }]
+            },
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/emissoes/2"
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Alertas e Painel Executivo da Cadeia",
+      "item": [
+        {
+          "name": "Listar Alertas Socioambientais (Paginado)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/alertas?pagina=1&tamanhoPagina=10&resolvido=false"
+          }
+        },
+        {
+          "name": "Painel Consolidado da Cadeia de Suprimentos",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/alertas/painel-cadeia"
+          }
+        },
+        {
+          "name": "Resolver Alerta com Plano de Mitigação",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{jwtToken}}", "type": "string" }]
+            },
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"planoMitigacao\": \"Substituição de 40% da frota do fornecedor por veículos elétricos homologados no contrato 2027.\"\n}"
+            },
+            "url": "{{baseUrl}}/api/alertas/1/resolver"
+          }
+        }
+      ]
+    }
+  ]
+}
